@@ -28,6 +28,6 @@ class BloomFilter:
 
 if __name__ == '__main__':
     bf = BloomFilter(200)
-    bf.add('1')
+    bf.add('2')
     bf.add(1)
-    print(1 in bf, '2' in bf)  # True False
+    print(1 in bf, '20' in bf)  # True False
