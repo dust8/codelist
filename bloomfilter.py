@@ -14,7 +14,7 @@ class BloomFilter:
         for hash_algorithm in self.hash_algorithms:
             digest = int(hash_algorithm(str(value).encode()).hexdigest(), 16)
             # 进行and运算来保证值在存储范围内
-            yield digest & self.m
+            yield digest & (self.m - 1)
 
     def add(self, value):
         for digest in self._hash(value):
