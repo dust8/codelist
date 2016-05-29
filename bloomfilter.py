@@ -14,7 +14,11 @@ class BloomFilter:
         for hash_algorithm in self.hash_algorithms:
             digest = int(hash_algorithm(str(value).encode()).hexdigest(), 16)
             # 进行and运算来保证值在存储范围内
+<<<<<<< HEAD
             yield digest & self.m
+=======
+            yield digest & (self.m - 1)
+>>>>>>> 2c271d92e4f9cf8d38160c56032f10851e0e1d50
 
     def add(self, value):
         for digest in self._hash(value):
@@ -28,6 +32,12 @@ class BloomFilter:
 
 if __name__ == '__main__':
     bf = BloomFilter(200)
+<<<<<<< HEAD
     bf.add(2)
     bf.add(1)
     print(1 in bf, '2' in bf)  # True False
+=======
+    bf.add('2')
+    bf.add(1)
+    print(1 in bf, '20' in bf)  # True False
+>>>>>>> 2c271d92e4f9cf8d38160c56032f10851e0e1d50
