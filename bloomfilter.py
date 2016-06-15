@@ -1,24 +1,37 @@
 import math
 import hashlib
+from struct import pack
 
 
 class BloomFilter:
-    hash_algorithms = [hashlib.md5, hashlib.sha1,
-                       hashlib.sha224, hashlib.sha256]
+    def __init__(self, n, p=0.001):
+        """
+        m: the number of bits in the array
+        k: the number of hash functions
 
-    def __init__(self, m):
-        self.m = m
-        self.filter = bytearray(math.ceil(m / 8))
+        :param n: the number of to insert elements
+        :param p: false positive probability
+        """
+        if not n > 0:
+            raise ValueError("n must be > 0")
+        if not (0 < p < 1):
+            raise ValueError("p must be between 0 and 1.")
+
+        # http://www.cnblogs.com/allensun/archive/2011/02/16/1956532.html
+        self.n = n
+        self.p = p
+        self.m = math.ceil(-n * math.log(p) / (math.log(2) ** 2))
+        self.k = math.ceil(self.m * math.log(2) / self.n)
+
+        self.filter = bytearray(math.ceil(self.m / 8))
+        self.hashfn = hashlib.sha512
+        self.salts = tuple(self.hashfn(pack('I', i)).digest() for i in range(self.k))
 
     def _hash(self, value):
-        for hash_algorithm in self.hash_algorithms:
-            digest = int(hash_algorithm(str(value).encode()).hexdigest(), 16)
+        for salt in self.salts:
+            digest = int(self.hashfn(str(value).encode() + salt).hexdigest(), 16)
             # 进行and运算来保证值在存储范围内
-<<<<<<< HEAD
-            yield digest & self.m
-=======
             yield digest & (self.m - 1)
->>>>>>> 2c271d92e4f9cf8d38160c56032f10851e0e1d50
 
     def add(self, value):
         for digest in self._hash(value):
@@ -29,15 +42,17 @@ class BloomFilter:
         return all(self.filter[int(digest / 8)] & (2 ** (digest % 8))
                    for digest in self._hash(item))
 
+    def __str__(self):
+        return '<n=%s p=%s m=%s k=%s m/n=%s>' % (self.n, self.p, self.m, self.k, self.m / self.n)
+
 
 if __name__ == '__main__':
-    bf = BloomFilter(200)
-<<<<<<< HEAD
-    bf.add(2)
+    bf = BloomFilter(50000000)
+    print(bf)
     bf.add(1)
-    print(1 in bf, '2' in bf)  # True False
-=======
-    bf.add('2')
-    bf.add(1)
-    print(1 in bf, '20' in bf)  # True False
->>>>>>> 2c271d92e4f9cf8d38160c56032f10851e0e1d50
+    bf.add('1')
+    bf.add((1))
+    print(1 in bf)
+    print('1' in bf)
+    print((1) in bf)
+    print(2 in bf)
